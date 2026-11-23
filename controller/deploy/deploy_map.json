@@ -1,0 +1,61 @@
+{
+ "joints": {
+  "left.abd": {
+   "sign": 1.0,
+   "offset_deg": 25.0,
+   "erpm_per_rad_s": null,
+   "verified": true,
+   "verified_when": "2026-11-16",
+   "note": "offset = -sign * STAND_POSE_DEG (-25.00): the standing pose with trims at 0 IS the MJCF v8 xshape qpos0, so it maps to 0 rad in the model. Replaces +0.00 (CAD homing correspondence, 20-25 deg out for the xshape). Sign carried over from 2026-09-24 -- re-run check_direction (robot hung, limp) before trusting it."
+  },
+  "left.cam": {
+   "sign": 1.0,
+   "offset_deg": -55.47,
+   "erpm_per_rad_s": null,
+   "verified": true,
+   "verified_when": "2026-11-16",
+   "note": "offset = -sign * STAND_POSE_DEG (+55.47): the standing pose with trims at 0 IS the MJCF v8 xshape qpos0, so it maps to 0 rad in the model. Replaces -38.72 (CAD homing correspondence, 20-25 deg out for the xshape). Sign carried over from 2026-09-24 -- re-run check_direction (robot hung, limp) before trusting it."
+  },
+  "left.thigh": {
+   "sign": -1.0,
+   "offset_deg": 17.11,
+   "erpm_per_rad_s": null,
+   "verified": true,
+   "verified_when": "2026-11-16",
+   "note": "offset = -sign * STAND_POSE_DEG (+17.11): the standing pose with trims at 0 IS the MJCF v8 xshape qpos0, so it maps to 0 rad in the model. Replaces -0.48 (CAD homing correspondence, 20-25 deg out for the xshape). Sign carried over from 2026-09-24 -- re-run check_direction (robot hung, limp) before trusting it."
+  },
+  "right.abd": {
+   "sign": -1.0,
+   "offset_deg": -25.0,
+   "erpm_per_rad_s": null,
+   "verified": true,
+   "verified_when": "2026-11-16",
+   "note": "offset = -sign * STAND_POSE_DEG (-25.00): the standing pose with trims at 0 IS the MJCF v8 xshape qpos0, so it maps to 0 rad in the model. Replaces +0.00 (CAD homing correspondence, 20-25 deg out for the xshape). Sign carried over from 2026-09-24 -- re-run check_direction (robot hung, limp) before trusting it."
+  },
+  "right.cam": {
+   "sign": -1.0,
+   "offset_deg": 55.25,
+   "erpm_per_rad_s": null,
+   "verified": true,
+   "verified_when": "2026-11-16",
+   "note": "offset = -sign * STAND_POSE_DEG (+55.25): the standing pose with trims at 0 IS the MJCF v8 xshape qpos0, so it maps to 0 rad in the model. Replaces +38.72 (CAD homing correspondence, 20-25 deg out for the xshape). Sign carried over from 2026-09-24 -- re-run check_direction (robot hung, limp) before trusting it."
+  },
+  "right.thigh": {
+   "sign": 1.0,
+   "offset_deg": -16.84,
+   "erpm_per_rad_s": null,
+   "verified": true,
+   "verified_when": "2026-11-16",
+   "note": "offset = -sign * STAND_POSE_DEG (+16.84): the standing pose with trims at 0 IS the MJCF v8 xshape qpos0, so it maps to 0 rad in the model. Replaces +0.48 (CAD homing correspondence, 20-25 deg out for the xshape). Sign carried over from 2026-09-24 -- re-run check_direction (robot hung, limp) before trusting it."
+  }
+ },
+ "kt_joint": [
+  4.655,
+  2.176,
+  2.176,
+  4.655,
+  2.176,
+  2.176
+ ],
+ "kt_efficiency": 0.85
+}
