@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+# OS / IDE
+.DS_Store
+__MACOSX/
+.vscode/
+.idea/
+.claude/
+# Environment and temporary files
+.env
+.env.local
+*.log
+*.tmp
+# MuJoCo's own warning log, written next to whatever script ran
+MUJOCO_LOG.TXT
+# Training outputs (live on SCITAS / drive)
+runs/
+results/
+logs/
+wandb/
+*.msgpack
+*.ckpt
+events.out.tfevents.*
+# ...except the sim2real run analyses (on macOS, `logs/` also matches `Logs/`)
+!docs/sim2real/Logs/
+# Robot runtime data
+controller/fixed_gait/webui/data/blackbox/
+*.bbseg
+*.bbdump
+# Web UI runtime data, machine-local: session calibration (only valid until the motors are power
+# cycled), the active workspace, the fitted model map, the raw sys-ID captures, uploaded policies.
+controller/fixed_gait/webui/data/*
+# ...except the hand-authored artifacts (a drawn workspace, a taught gait): work, not runtime state.
+!controller/fixed_gait/webui/data/workspaces/
+!controller/fixed_gait/webui/data/trajectories/
+# Scratch validation renders
+controller/model/_*.png
+controller/fixed_gait/calibration/_selftest/
+# Media and CAD sources
+*.mp4
+*.mov
+*.gif
+*.ipt
+*.iam
+*.stp
+*.step
+*.exe
+# Keep deployed policies
+!controller/deploy/bundles/*.npz
+!checkpoints/**/best.msgpack

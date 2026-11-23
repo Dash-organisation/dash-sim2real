@@ -1,0 +1,18 @@
+# Shell scripts must stay LF: they execute on the robot's Pi and on the SCITAS cluster.
+*.sh text eol=lf
+*.sbatch text eol=lf
+
+# Preserve policy archives, model assets and checkpoints byte-for-byte on every checkout.
+*.zip binary
+*.pkl binary
+*.npz binary
+*.npy binary
+*.msgpack binary
+*.stl binary
+*.mp4 binary
+*.png binary
+*.pdf binary
+*.pptx binary
+
+# Preserve downloaded experiment evidence and frozen source manifests byte-for-byte.
+/docs/experiments/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
