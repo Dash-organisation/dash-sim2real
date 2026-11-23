@@ -18,7 +18,9 @@
       "Bash(graphify update:*)",
       "Bash(python -m pytest:*)",
       "Bash(python3 -m pytest:*)",
-      "Bash(./controller/deploy_to_pi.sh --check:*)"
+      "Bash(./controller/deploy_to_pi.sh --check:*)",
+      "Bash(git config core.hooksPath)",
+      "Bash(tools/install-hooks.sh)"
     ],
     "ask": [
       "Bash(git push:*)",

@@ -2,6 +2,10 @@
 
 DASH-01: a 6-DoF biped (Raspberry Pi 3B, CAN motors, 100 Hz loop). This repo holds the robot stack, the RL training, the robot model and the reports' light files. Human docs: `README.md`. Write code, docs and commit messages in English.
 
+## Setup check (start of every session)
+
+Run `git config core.hooksPath`. If it does not print `tools/hooks`, the git hooks are not installed in this clone: tell the user in one sentence (they block files over 1 MiB and keep the graphify graph fresh) and offer to run `tools/install-hooks.sh`. If `graphify` is missing, also offer `uv tool install graphifyy` (or `pipx install graphifyy`) first. When the user asks to "set up the repo", do both. Details: `README.md`, "First-time setup".
+
 ## Layout (phase 1 names, do not rename)
 
 - `controller/` — robot stack (= `~/running_robot/robot/` on the Pi). Owner: Tim.

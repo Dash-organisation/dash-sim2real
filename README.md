@@ -2,6 +2,24 @@
 
 Everything needed to train a policy for the DASH-01 robot and run it on the hardware: the robot stack, the training code, the model of the current robot, and the sim-to-real journals.
 
+## First-time setup (do this once after cloning)
+
+This repo comes with **git hooks**: small scripts that git runs on its own at certain moments.
+
+- **Before every commit**, a hook refuses any file larger than 1 MiB (except deployed policies in `controller/deploy/bundles/` and `best.msgpack` checkpoints). Videos, progress logs and traces must not end up in this repo; they go to `dash-reports`.
+- **After every commit, checkout or merge**, a hook refreshes the graphify graph in the background. Claude Code uses that graph to find code without reading whole files, which saves tokens. Without graphify installed, this hook does nothing.
+
+**Git never installs hooks by itself when you clone or pull**: for security, it does not run scripts that come from a repo until you allow it. You have to run the install script **once per clone**:
+
+```bash
+uv tool install graphifyy     # optional but recommended (or: pipx install graphifyy)
+tools/install-hooks.sh        # activates the hooks and builds the graph
+```
+
+After that, the hooks stay active in your clone, and any later change to them arrives with a normal `git pull`. To check that they are active, run `git config core.hooksPath`: it must print `tools/hooks`.
+
+**If you use Claude Code (or another AI assistant):** just ask it to "set up the repo". `CLAUDE.md` and `AGENTS.md` tell it to check the hooks and run the script above. The Claude Code settings in `.claude/settings.json` are shared and active as soon as you open the repo in Claude Code and accept to trust the folder.
+
 ## 1. What DASH-01 is
 
 - A 15.14 kg biped with 6 actuated degrees of freedom: 4× AKE90-8 and 2× AK60-39 on CAN (can0 = right leg, can1 = left leg).
@@ -42,10 +60,9 @@ Videos, heavy report data and raw robot logs are in [`dash-reports`](https://git
 Everything is done in this one repo, on one branch. The other repos are only read.
 
 ```bash
-# once
+# once: clone, then the first-time setup at the top of this README
 git clone https://github.com/Dash-organisation/dash-sim2real.git && cd dash-sim2real
-uv tool install graphifyy          # optional, saves Claude Code tokens (or: pipx install graphifyy)
-tools/install-hooks.sh             # size check before each commit + graphify graph refresh
+tools/install-hooks.sh
 
 # each topic
 git switch -c train/<topic>        # e.g. train/quiet02
