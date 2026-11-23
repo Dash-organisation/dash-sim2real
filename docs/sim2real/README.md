@@ -48,6 +48,14 @@ The analysis covers runs 3 and 4:
 
 The test plan lists hypotheses (gains: kd stuck at 5 and kp jumping between ticks; the cam–thigh fight; the loop rate) and tests to separate them.
 
+**[`DASH01_plan_test_Kd_2026-11-24.md`](DASH01_plan_test_Kd_2026-11-24.md): is Kd the sim-to-real problem? (test of 2026-11-24, branch `hw/Kd_validation`).**
+One step of `standing04_xshape_best`, taken from a simulated run where it stands, is frozen into six bundles (`controller/deploy/bundles/kdval_*.npz`, constant action head, no robot code change). They differ only in the leg kd (5 / 2 / 1 / 0.5, plus kd 5 with kp halved). Each runs 10 s on the robot in the harness, once still (noise) and once with gentle pushes (effective kp/kd). Prepared evidence:
+- in runs 7–8, the cam at kd ≈ 1.4 ripples 0.2 A while the cam at kd 5 ripples 3.4–3.9 A;
+- in simulation the policy also pins the cam kd at 5, but capping it at 1 does not break the policy;
+- the frozen step falls on its own in simulation, so the harness must hold the torso.
+
+Tools and analysis: `tools/kd_validation/`.
+
 **[`DASH-sim2real_plan_migration.md`](DASH-sim2real_plan_migration.md): migration plan.**
 How this repo, `dash-reports` and the archive were built from the old DASH-01 repo, plus the branch rules and the checklist before merging into `main`.
 
