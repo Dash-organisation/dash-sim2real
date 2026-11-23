@@ -12,6 +12,7 @@ One line per milestone. The details, with the full git history from before the m
 | 2026-10-14 to 10-19 | **GAIT-01 to 11**, **SPEED-01**, **WALK-01** (walking on the CAD-v2 plant) | same |
 | 2026-10-25 to 10-27 | **CLEARANCE-01/02** (lifting the foot while walking) | same |
 | 2026-11-09 to 11-11 | **STAND-03**, **STAND-04** (three standing plants), then **STAND-05** pose-return (implemented, not trained). The `standing04_xshape_best` policy comes out of this | `docs/rl/PROJECT_CONTEXT.md`, `BalanceRL/` |
+| 2026-11-22 to 11-23 | Léo-Paul, **QUIET-01** v1 then v2 (return to and hold the quiet posture, 3 plants) and **QUIET-PUSH-01** (push-only evaluation), simulation only | `docs/rl/EXPERIMENTS.md`, `docs/experiments/quiet01_*`, `dash-reports/report/quiet*` |
 | 2026-11-17 | **First deployment on the robot** of `standing04_xshape_best`, runs 1 to 4; the loop holds 60 then 76 Hz instead of 100 | `docs/sim2real/old_journal_plan/DASH01_journal_2026-11-17.md` |
 | 2026-11-18 to 11-19 | **Plan B**: inference in a separate process (policy worker), `policy-worker` branch | `docs/sim2real/old_journal_plan/DASH01_plan_B_RAPPORT.md` |
 | 2026-11-20 | **Plan C**: raw CAN socket, IMU back at 200 Hz (`cfd33c9`, the version on the Pi); runs 5 to 9. Run 9: 100 Hz from the terminal, but the policy lets the robot tip forward | `docs/sim2real/DASH01_journal_2026-11-20.md` |

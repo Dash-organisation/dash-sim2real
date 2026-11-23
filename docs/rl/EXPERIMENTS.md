@@ -1,6 +1,6 @@
 # EXPERIMENTS — catalogue of the RL series
 
-> **Skeleton, to be filled in with Léo-Paul.** Results come from `docs/rl/PROJECT_CONTEXT.md` (updated 2026-11-11). They are **simulation-only** results unless stated otherwise.
+> **Skeleton, to be filled in with Léo-Paul.** Results come from `docs/rl/PROJECT_CONTEXT.md` (updated 2026-11-23). They are **simulation-only** results unless stated otherwise.
 
 Artifact rule (from `docs/experiments/README.md`): code and small metrics are versioned; raw traces and checkpoints stay on SCITAS (`/home/rizkalla/running_robot_experiments/`). Files over 1 MB and the galleries are in `dash-reports`.
 
@@ -8,6 +8,8 @@ Artifact rule (from `docs/experiments/README.md`): code and small metrics are ve
 
 | Series | Dates | Question | Known result | Tested on the robot |
 | --- | --- | --- | --- | --- |
+| QUIET-PUSH-01 | 23/11 | push-only evaluation of the best QUIET-01v2 checkpoints (66 trials per plant, torso pulses 0–60 N for 100 ms) | V2 returns reliably under moderate pushes; X-shape survives 60 N lateral pulses but does not regain the quiet posture; exploratory (two repeats) | no |
+| QUIET-01 v1, v2 | 22–23/11 | return to and hold the quiet posture, 3 plants (`BalanceRL/quiet_tracking*.py`) | v1 superseded by v2 after an acceptance fix; v2 best test passes out of 96: V1 71, V2 85, X 89; all-96 retention 62/78/78 (one seed) | no |
 | STAND-05 pose-return | 11/11 | return to the rest posture after a recovery | implemented, 23 tests; **not trained** | no |
 | STAND-04 | 10–11/11 | stand, plus a recovery step after a push, 3 plants | V1 59/80, V2 52/80, X 72/80 (80-trial replay); `standing04_xshape_best` | **yes, deployed (runs 1–9, 17–20/11)** |
 | STAND-03 | 09/11 | stand, 3 plants | best 78/80 (V1), 69/80 (V2), 70/80 (X) | no |
@@ -25,7 +27,7 @@ Artifact rule (from `docs/experiments/README.md`): code and small metrics are ve
 | `stand_v2.xml` | two pads | `quiet_v2.json` | 52/80; fails at 6.80 s |
 | `stand_xshape.xml` | two pads, **provisional** X masses | `quiet_xshape.json` | 72/80; holds the full 20 s |
 
-The STAND-03/04 `best.msgpack` checkpoints are in `checkpoints/standing0{3,4}/{v1,v2,xshape}/` (parents for a warm start). A frozen copy of the three plants is in `archive/models/standing/`.
+The STAND-03/04 and QUIET-01v2 `best.msgpack` checkpoints are in `checkpoints/standing0{3,4}/{v1,v2,xshape}/` and `checkpoints/quiet01v2/{v1,v2,xshape}/` (parents for a warm start). A frozen copy of the three plants is in `archive/models/standing/`.
 
 ## Entries
 
@@ -44,6 +46,12 @@ Template, one per series:
 - Exported policy:
 - Status:
 ```
+
+### QUIET-PUSH-01
+_to be filled in_
+
+### QUIET-01 v1, v2
+_to be filled in_
 
 ### STAND-05 pose-return
 _to be filled in_
