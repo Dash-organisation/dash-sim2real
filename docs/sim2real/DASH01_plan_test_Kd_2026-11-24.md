@@ -62,6 +62,18 @@ Seuls six fichiers de 15 kB sont à copier.
 - **Le pas figé ne tient pas debout seul** : il bascule en arrière et tombe en 1,6 s. L'équilibre
   vient de la politique, pas de la posture. → Sur le robot, **le harnais doit retenir le torse**
   pendant tous les runs figés.
+- **La politique n'a que deux stances calmes, toutes deux asymétriques.** On l'a cherché sur 48 runs
+  simulés, avec des poussées de 10 à 45 N dans 12 directions :
+  - sans poussée, ou après une poussée faible, **l'abduction droite est presque lâche** (kp 20,
+    kd 0,3) ;
+  - après une poussée vers l'avant de 20 N ou plus, c'est la **jambe gauche qui mollit** (came
+    kp 35, cuisse kp 21), et les pieds se sont déplacés de 10° par rapport à la pose de départ.
+
+  Aucun tick ne donne une trame propre telle quelle. → On garde **les jambes exactement comme dans
+  le pas** de la première stance, et on met **les deux abductions à la trame nominale du bundle**
+  (action 0 : cible `nominal_ctrl` ±1,68°, kp 120, kd 4). L'abduction ne fait pas partie de la
+  question, et ainsi le robot ne penche pas sur le côté. Vérifié en simulation, trame figée,
+  robot libre : roulis 0,00° à 0,5 s, contre +0,3 à +0,4° avec l'abduction brute du pas.
 - **En simulation, le kd ne compte presque pas.** La politique complète, avec le kd des
   cames/cuisses plafonné à 3, 2 ou 1, tient toujours debout et encaisse des poussées de ±30 N
   (tangage max 4,7° à kd 5, 5,5° à kd 1). Avec le torse tenu et la trame figée, passer le kd de 5
@@ -82,25 +94,26 @@ Ordre du modèle : hip_roll_L, cam_L, thigh_L, hip_roll_R, cam_R, thigh_R.
 
 | | hip_roll_L | cam_L | thigh_L | hip_roll_R | cam_R | thigh_R |
 |---|---|---|---|---|---|---|
-| cible (°) | −0,92 | +2,78 | +5,55 | +3,85 | −2,82 | −5,87 |
+| cible (°) | −1,68 *(nominal)* | +2,78 | +5,55 | +1,68 *(nominal)* | −2,82 | −5,87 |
 | (nominal_ctrl, °) | −1,68 | +1,63 | +6,08 | +1,68 | −1,74 | −5,89 |
-| kp (N·m/rad) | 365 | 211 | 133 | **20** | 105 | 218 |
-| kd (N·m·s/rad) | 4,55 | **5** | **5** | 0,29 | **5** | 1,91 |
+| kp (N·m/rad) | 120 *(nominal)* | 211 | 133 | 120 *(nominal)* | 105 | 218 |
+| kd (N·m·s/rad) | 4 *(nominal)* | **5** | **5** | 4 *(nominal)* | **5** | 1,91 |
+| *(pas brut, abduction)* | *−0,92° / 365 / 4,55* | | | *+3,85° / **20** / 0,29* | | |
 
-Les cibles sont à ~1° de la stance de la politique (`nominal_ctrl`), qui passe déjà l'armement. À
-noter : **l'abduction droite est très molle** (kp 20, kd 0,3). Le robot peut pencher sur le côté
-dans le harnais ; c'est ce que fait le pas, on le garde tel quel.
+Les cibles des jambes sont à ~1° de la stance de la politique (`nominal_ctrl`), qui passe déjà
+l'armement. Les abductions sont celles du bundle à action 0 (voir 2.2).
+`make_frozen_bundles.py --abduction step` refait les bundles avec l'abduction brute du pas.
 
 | bundle | kd jambes (cames + cuisses) | kp jambes | rôle |
 |---|---|---|---|
-| `kdval_A_step.npz` | celui du pas (5 / 5 / 5 / 1,91) | pas | le pas exact, sans la dynamique de la politique |
+| `kdval_A_step.npz` | celui du pas (5 / 5 / 5 / 1,91) | pas | les jambes du pas exact, sans la dynamique de la politique |
 | `kdval_B_kd5.npz` | **5** partout | pas | le pire cas, la référence |
 | `kdval_C_kd2.npz` | **2** | pas | |
 | `kdval_D_kd1.npz` | **1** | pas | |
 | `kdval_E_kd05.npz` | **0,5** | pas | |
 | `kdval_F_kd5_kphalf.npz` | 5 | **× 0,5** | le kp joue-t-il aussi ? |
 
-La cible et les gains d'abduction sont les mêmes pour les six bundles. Chaque bundle a été vérifié
+La cible des jambes et la trame d'abduction (nominale) sont les mêmes pour les six bundles. Chaque bundle a été vérifié
 dans le contrôleur déployé (trame conforme à 1e-5 près après 1 s, avec des entrées bruitées) et dans
 le daemon sur MockBus, avec le worker (`tools/kd_validation/test_frozen_bundles.py`, 8 tests OK).
 Entre la rampe de départ et l'arrêt, tous les ticks loggés portent exactement le kp/kd déclaré.

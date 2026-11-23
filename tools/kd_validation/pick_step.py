@@ -51,13 +51,19 @@ def main():
     ap.add_argument("--model", default=SIM.DEFAULT_MODEL)
     ap.add_argument("--seconds", type=float, default=20.0)
     ap.add_argument("--window", type=float, nargs=2, default=(10.0, 20.0))
+    ap.add_argument("--push", type=float, default=None,
+                    help="torso push (N, +x forward) for 0.1 s at t = 5 s before the window: the "
+                         "policy settles into another quiet stance after it")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
     b = SIM.Bundle.load(a.bundle)
     name = os.path.splitext(os.path.basename(a.bundle))[0]
 
     # 1. the policy
-    r = SIM.run(b, a.seconds, model_path=a.model)
+    push = None if a.push is None else (5.0, 0.1, a.push)
+    if push is not None and a.window[0] < 6.0:
+        raise SystemExit("--window must start after the push has settled (>= 6 s)")
+    r = SIM.run(b, a.seconds, push=push, model_path=a.model)
     w = (r["t"] >= a.window[0]) & (r["t"] < a.window[1])
     idx = np.flatnonzero(w)
     med = np.median(r["action"][idx], 0)
@@ -118,6 +124,8 @@ def main():
         "bundle": os.path.basename(a.bundle), "run": b.meta.get("run"),
         "model": os.path.relpath(a.model, SIM.ROOT),
         "sim": "tools/kd_validation/sim_closed_loop.py: nominal plant, no noise, 12 ms delay, 1 kHz",
+        "push_before_window": None if push is None else {"t_s": 5.0, "duration_s": 0.1,
+                                                          "force_x_n": a.push},
         "picked_tick": k, "picked_t_s": round(float(r["t"][k]), 2), "window_s": list(a.window),
         "joints": SIM.ACT_NAMES,
         "action": r3(r["action"][k]),
@@ -127,7 +135,8 @@ def main():
         "checks": {"policy": policy, "frozen_free_standing": frozen_free,
                    "frozen_torso_held_kd_sweep": held, "policy_kd_cap_pushes": caps},
     }
-    path = a.out or os.path.join(HERE, "step_{}.json".format(name))
+    path = a.out or os.path.join(HERE, "step_{}{}.json".format(
+        name, "" if a.push is None else "_push{:+.0f}N".format(a.push)))
     with open(path, "w") as f:
         json.dump(out, f, indent=1)
     print("wrote", path)

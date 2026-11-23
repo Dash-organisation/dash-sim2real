@@ -106,7 +106,7 @@ def run(bundle, seconds=10.0, delay_ms=12.0, frozen=None, push=None, held=False,
     """Run the policy (frozen=None) or a constant (target, kp, kd) after the policy's own target
     filter (frozen = 18-dim action fed through the deployed controller via override_action).
     frame = (target, kp, kd) sent as is every tick, bypassing the controller (kp/kd outside the
-    policy's range, e.g. kd 0). push = (t_s, duration_s, force_x_N) on the torso (or, held, a
+    policy's range, e.g. kd 0). push = (t_s, duration_s, force_x_N or [fx, fy]) on the torso (or, held, a
     joint-space kick is not modelled). held = torso pinned. Returns a dict of per-tick arrays."""
     p = Plant(model_path)
     p.held = held
@@ -125,7 +125,8 @@ def run(bundle, seconds=10.0, delay_ms=12.0, frozen=None, push=None, held=False,
                else tuple(np.asarray(v, float) for v in frame))
         cmds = cmds[-2:] + [new]
         if push is not None and push[0] <= i * 0.01 < push[0] + push[1]:
-            p.d.xfrc_applied[p.torso, 0] = push[2]
+            f = np.atleast_1d(np.asarray(push[2], float))
+            p.d.xfrc_applied[p.torso, :f.size] = f          # force_x, or [fx, fy(, fz)]
         else:
             p.d.xfrc_applied[p.torso, :] = 0.0
         p.tick(cmds, delay_ms)

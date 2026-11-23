@@ -4,7 +4,10 @@ Test plan (French): [`docs/sim2real/DASH01_plan_test_Kd_2026-11-24.md`](../../do
 
 The idea: take one step of `standing04_xshape_best` from a simulated run where it stands, freeze it
 (the same MIT frame — target, kp, kd per joint — on every tick), and run it on the robot with only
-the leg kd changed (5 / 2 / 1 / 0.5, plus kd 5 with kp halved). Each variant is an ordinary v3
+the leg kd changed (5 / 2 / 1 / 0.5, plus kd 5 with kp halved). The two hip rolls get the bundle's
+nominal frame (action 0: `nominal_ctrl`, kp 120, kd 4): both quiet stances of this policy have one
+nearly limp hip roll or leg (searched over 48 pushed sim runs), and the abduction is not under test
+(`make_frozen_bundles.py --abduction step` keeps the step's own). Each variant is an ordinary v3
 bundle whose action head is a constant (`act_w = 0`, `act_b = a*`), so the daemon runs it with every
 guard and logs it like any policy. No robot code changes.
 
