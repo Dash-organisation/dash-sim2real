@@ -2,7 +2,7 @@
 
 > **Skeleton, to be filled in with Léo-Paul.** Results come from `docs/rl/PROJECT_CONTEXT.md` (updated 2026-11-23). They are **simulation-only** results unless stated otherwise.
 
-Artifact rule (from `docs/experiments/README.md`): code and small metrics are versioned; raw traces and checkpoints stay on SCITAS (`/home/rizkalla/running_robot_experiments/`). Files over 1 MB and the galleries are in `dash-reports`.
+Artifact rule (from `docs/experiments/README.md`): code and small metrics are versioned; raw traces and checkpoints stay on SCITAS (`/home/rizkalla/running_robot_experiments/`). Write-ups and galleries are in `report/`; files over 1 MiB (videos, progress logs, traces) are in `dash-reports`.
 
 ## Overview
 

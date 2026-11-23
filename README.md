@@ -27,13 +27,38 @@ Phase 1 of the migration: folders keep their names from the old repo, so the pat
 | `dash-01CAD/` | model of the current robot: homing v8 export (web UI twin), meshes, `dash01.xml` |
 | `BalanceRL/` | standing training (STAND-03/04/05) and the three `stand_*.xml` plants |
 | `RLframework/` | locomotion training (STOP, GAIT, SPEED, WALK, CLEARANCE), without `results/` |
-| `checkpoints/` | STAND-03/04 `best.msgpack` files, parents for a warm start |
+| `checkpoints/` | STAND-03/04 and QUIET-01v2 `best.msgpack` files, parents for a warm start |
+| `report/` | Léo-Paul's report workspace: write-ups, HTML galleries, figures, small data (files < 1 MiB; videos and heavy data are in `dash-reports`) |
+| `tools/` | repo tooling: git hooks, `install-hooks.sh`, `sync_reports.sh` |
 | `docs/sim2real/` | journals, plans B and C, motor noise, analyses of runs 3 to 9 (in French, with English summaries) |
 | `docs/rl/` | `EXPERIMENTS.md` (catalogue of the series) and `PROJECT_CONTEXT.md` |
 | `docs/experiments/` | experiment records (files < 1 MB; the rest is in `dash-reports`) |
 | `archive/` | frozen copies, nothing active |
 
-Videos, reports and raw logs are in [`dash-reports`](https://github.com/Dash-organisation/dash-reports). Theses and presentations are not published. CAD will go to `dash-cad`.
+Videos, heavy report data and raw robot logs are in [`dash-reports`](https://github.com/Dash-organisation/dash-reports). Theses and presentations are not published. CAD will go to `dash-cad`.
+
+## Working on this repo (training workflow)
+
+Everything is done in this one repo, on one branch. The other repos are only read.
+
+```bash
+# once
+git clone https://github.com/Dash-organisation/dash-sim2real.git && cd dash-sim2real
+uv tool install graphifyy          # optional, saves Claude Code tokens (or: pipx install graphifyy)
+tools/install-hooks.sh             # size check before each commit + graphify graph refresh
+
+# each topic
+git switch -c train/<topic>        # e.g. train/quiet02
+# ... train, evaluate, regenerate reports in report/ as before ...
+git add -A && git commit -m "BalanceRL: ..."    # files > 1 MiB are refused, they stay untracked
+git push -u origin train/<topic>
+git pull origin main               # from time to time, to get the latest robot code
+```
+
+- **What gets committed:** code, configs, tests, `docs/experiments/<series>/` records, the `docs/rl/EXPERIMENTS.md` entry, and `report/` write-ups, galleries and figures, as long as each file is under 1 MiB.
+- **What stays untracked:** videos, `progress.jsonl`, archives, traces, `runs/`, `results/`. To publish the heavy report files, someone runs `tools/sync_reports.sh --push` from time to time: it copies `report/`, `docs/experiments/` and `RLframework/results/` into a `dash-reports` clone next to this one (`../dash-reports`).
+- **Reading other repos:** clone `dash-reports` (videos, old reports, raw robot logs) or `dash-cad` next to this repo, and `git pull` there when needed. You never push to them.
+- **Claude Code:** `CLAUDE.md` and `.claude/settings.json` are shared. Claude asks before any `git push`, `ssh`, `curl` or deployment, never force-pushes, and uses the graphify graph instead of reading whole files. Personal settings go in `.claude/settings.local.json` (ignored).
 
 ## 4. Quickstart in simulation (Mac)
 
