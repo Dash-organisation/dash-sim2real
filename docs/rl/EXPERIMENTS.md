@@ -1,67 +1,67 @@
-# EXPERIMENTS — catalogue des séries RL
+# EXPERIMENTS — catalogue of the RL series
 
-> **Squelette, à remplir avec Léo-Paul.** Les résultats viennent de `docs/rl/PROJECT_CONTEXT.md` (mis à jour le 11/11/2026). Ce sont des résultats **en simulation uniquement**, sauf mention contraire.
+> **Skeleton, to be filled in with Léo-Paul.** Results come from `docs/rl/PROJECT_CONTEXT.md` (updated 2026-11-11). They are **simulation-only** results unless stated otherwise.
 
-Règle pour les artefacts (reprise de `docs/experiments/README.md`) : le code et les petites métriques sont versionnés ; les traces brutes et les checkpoints restent sur SCITAS (`/home/rizkalla/running_robot_experiments/`). Les fichiers de plus de 1 Mo et les galeries sont dans `dash-reports`.
+Artifact rule (from `docs/experiments/README.md`): code and small metrics are versioned; raw traces and checkpoints stay on SCITAS (`/home/rizkalla/running_robot_experiments/`). Files over 1 MB and the galleries are in `dash-reports`.
 
-## Vue d'ensemble
+## Overview
 
-| Série | Dates | Question | Résultat connu | Testé sur robot |
+| Series | Dates | Question | Known result | Tested on the robot |
 | --- | --- | --- | --- | --- |
-| STAND-05 pose-return | 11/11 | revenir à la posture de repos après récupération | implémenté, 23 tests ; **pas entraîné** | non |
-| STAND-04 | 10–11/11 | tenir debout, plus un pas de récupération après poussée, 3 plants | V1 59/80, V2 52/80, X 72/80 (rejeu de 80 essais) ; `standing04_xshape_best` | **oui, déployé (runs 1–9, 17–20/11)** |
-| STAND-03 | 09/11 | tenir debout, 3 plants | best 78/80 (V1), 69/80 (V2), 70/80 (X) | non |
-| CLEARANCE-01/02 | 25–27/10 | lever le pied en marche | archivé 12/12 essais de 30 s à 1,50 m/s ; rejeu frais 9/12, écart **non expliqué** | non |
-| SPEED-01, WALK-01 | 19/10 | vitesse et marche sur le plant CAD-v2 | à résumer | non |
-| GAIT-01 à 11 | 14–19/10 | marche sur le nouveau plant CAD ; shaping bilatéral, drag de contact | vidéos de 0,10 à 0,35 m/s | non |
-| STOP-01 à 06 | 02–12/10 | s'arrêter et tenir : PPO, imitation, rehearsal, arrêt en mouvement | STOP-02 v3 : 0/32 holds ; STOP-03 (imitation) : 21/32 | non |
-| Avant Léo-Paul (Nathann) | 2026 | sprint m1→m6, Fourier gait, `walk_mit`, `leg2d` | 3 m/s en simulation ; mur historique à m3 | non |
+| STAND-05 pose-return | 11/11 | return to the rest posture after a recovery | implemented, 23 tests; **not trained** | no |
+| STAND-04 | 10–11/11 | stand, plus a recovery step after a push, 3 plants | V1 59/80, V2 52/80, X 72/80 (80-trial replay); `standing04_xshape_best` | **yes, deployed (runs 1–9, 17–20/11)** |
+| STAND-03 | 09/11 | stand, 3 plants | best 78/80 (V1), 69/80 (V2), 70/80 (X) | no |
+| CLEARANCE-01/02 | 25–27/10 | lift the foot while walking | archived 12/12 trials of 30 s at 1.50 m/s; fresh replay 9/12, gap **not explained** | no |
+| SPEED-01, WALK-01 | 19/10 | speed and walking on the CAD-v2 plant | to be summarised | no |
+| GAIT-01 to 11 | 14–19/10 | walking on the new CAD plant; bilateral shaping, contact drag | videos from 0.10 to 0.35 m/s | no |
+| STOP-01 to 06 | 02–12/10 | stop and hold: PPO, imitation, rehearsal, stopping while moving | STOP-02 v3: 0/32 holds; STOP-03 (imitation): 21/32 | no |
+| Before Léo-Paul (Nathann) | 2026 | sprint m1→m6, Fourier gait, `walk_mit`, `leg2d` | 3 m/s in simulation; historical wall at m3 | no |
 
-## Les trois plants « debout » (STAND-03/04)
+## The three standing plants (STAND-03/04)
 
-| Fichier (`BalanceRL/model/`) | Pied | Référence au repos | STAND-04, rejeu de 80 essais |
+| File (`BalanceRL/model/`) | Foot | Rest reference | STAND-04, 80-trial replay |
 | --- | --- | --- | --- |
-| `stand_v1.xml` | semelle continue (V1 d'origine) | `quiet_v1.json` | 59/80 ; échoue l'essai de poussée fixe à 6,90 s |
-| `stand_v2.xml` | deux patins | `quiet_v2.json` | 52/80 ; échoue à 6,80 s |
-| `stand_xshape.xml` | deux patins, masses X **provisoires** | `quiet_xshape.json` | 72/80 ; tient les 20 s |
+| `stand_v1.xml` | continuous sole (original V1) | `quiet_v1.json` | 59/80; fails the fixed-push trial at 6.90 s |
+| `stand_v2.xml` | two pads | `quiet_v2.json` | 52/80; fails at 6.80 s |
+| `stand_xshape.xml` | two pads, **provisional** X masses | `quiet_xshape.json` | 72/80; holds the full 20 s |
 
-Les checkpoints `best.msgpack` de STAND-03/04 sont dans `checkpoints/standing0{3,4}/{v1,v2,xshape}/` (parents pour un warm-start). Une copie figée des trois plants est dans `archive/models/standing/`.
+The STAND-03/04 `best.msgpack` checkpoints are in `checkpoints/standing0{3,4}/{v1,v2,xshape}/` (parents for a warm start). A frozen copy of the three plants is in `archive/models/standing/`.
 
-## Fiches
+## Entries
 
-Modèle d'une fiche, une par série :
+Template, one per series:
 
 ```text
-### <SÉRIE>
-- Objectif et hypothèse :
-- Plant (.xml et son hash) :
-- Config (preset dans config.py) :
-- Nombre de steps :
-- Critère de succès (fixé avant) :
-- Résultat chiffré :
-- Ce qui a été appris :
-- Chemin SCITAS des artefacts :
-- Policy exportée :
-- Statut :
+### <SERIES>
+- Goal and hypothesis:
+- Plant (.xml and its hash):
+- Config (preset in config.py):
+- Number of steps:
+- Success criterion (set beforehand):
+- Numerical result:
+- What was learned:
+- SCITAS path of the artifacts:
+- Exported policy:
+- Status:
 ```
 
 ### STAND-05 pose-return
-_à remplir_
+_to be filled in_
 
 ### STAND-04
-_à remplir_
+_to be filled in_
 
 ### STAND-03
-_à remplir_
+_to be filled in_
 
 ### CLEARANCE-01/02
-_à remplir_
+_to be filled in_
 
 ### SPEED-01, WALK-01
-_à remplir_
+_to be filled in_
 
-### GAIT-01 à 11
-_à remplir_
+### GAIT-01 to 11
+_to be filled in_
 
-### STOP-01 à 06
-_à remplir_
+### STOP-01 to 06
+_to be filled in_

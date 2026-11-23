@@ -1,7 +1,7 @@
-# CHANGELOG — déploiements sur le robot
+# CHANGELOG — deployments to the robot
 
-Une ligne par `deploy_to_pi.sh`, la plus récente en haut. Le commit déployé est tagué `robot-AAAA-MM-JJ-<n>`.
+One line per `deploy_to_pi.sh`, most recent first. The deployed commit is tagged `robot-YYYY-MM-DD-<n>`.
 
-| Date | Tag | Commit | Ce qui a changé sur le robot | Résultat |
+| Date | Tag | Commit | What changed on the robot | Result |
 | --- | --- | --- | --- | --- |
-| 2026-11-20 | (ancien repo) | `cfd33c9` | IMU à 200 Hz (revert de 120 Hz), CAN brut | run 9 : 100 Hz depuis le terminal, chute vers l'avant après 0,88 s |
+| 2026-11-20 | (old repo) | `cfd33c9` | IMU at 200 Hz (revert of 120 Hz), raw CAN | run 9: 100 Hz from the terminal, tips forward after 0.88 s |

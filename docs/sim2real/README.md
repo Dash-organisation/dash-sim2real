@@ -1,19 +1,68 @@
-# docs/sim2real — journaux et analyses du passage sim → robot
+# docs/sim2real — sim-to-real journals and analyses
 
-Journaux de bord, plans et rapports du déploiement de `standing04_xshape_best` sur DASH-01 (17–20/11/2026).
+Journals, plans and reports from deploying `standing04_xshape_best` on DASH-01 (2026-11-17 to 11-20). **The documents are in French**; each one is summarised in English below.
 
-| Fichier | Contenu |
+The `Logs/…` paths are the ones from the original folder (`Dash-01/SimToReal/`), so that the links inside the journals stay valid.
+
+**Raw data** (`.bbseg`, `.bbdump`, CSV, JSON and NPZ of runs 3 to 9 and of the plan C benches) is not in this repo. It is in [`dash-reports`](https://github.com/Dash-organisation/dash-reports), under `sim2real-logs/`, with the same layout as `Logs/` here.
+
+## Journals
+
+**[`old_journal_plan/DASH01_journal_2026-11-17.md`](old_journal_plan/DASH01_journal_2026-11-17.md): first deployment, runs 1 to 4.**
+First tests of the standing policy on the real robot. Introduces the scripted `deploy_to_pi.sh` and the decision to zero the motors standing. Three input bugs are fixed on the robot: the IMU mount was 180° off, the gyro was in deg/s instead of rad/s, and a calibration sign was missing on the torque observation. A workspace guard stops run 2, so the knee stop is moved mechanically. Runs 3 and 4 show the policy does right the robot from a −7 to −9° heel tilt, but the rate guard stops it because the loop only holds 60 Hz (run 3) and 76 Hz (run 4) instead of 100. The blamed cause is Python GIL contention in the daemon, which leads to plan B.
+
+**[`DASH01_journal_2026-11-20.md`](DASH01_journal_2026-11-20.md): plans B and C, runs 5 to 9. This is the reference state.**
+- **Plan B** (inference in a separate process) works and is bit-identical, but brings no gain on the Pi.
+- An investigation of the daemon loop leads to **plan C**: a raw CAN socket, and the IMU tried at 120 Hz and then put back to 200 Hz (`cfd33c9`, the version now on the Pi).
+- **Runs 5 to 9.** Launched from the web UI, runs reach 83 to 89 Hz. Run 9, launched from the terminal with `policy_cli.py`, holds 100.0 Hz, which settles the loop-rate problem.
+- **The policy does not stop the robot tipping forward.** An offline replay (§3.11) shows that it corrects in the right direction but weakly, and that it softens the thigh gains. The real robot also sits at −6.5° on its heels in the start pose, while the simulated robot stands on its own: the robot is outside the domain the policy was trained on.
+- **Decisions:** do not re-zero the IMU while standing. Measure the centre-of-mass gap, then retrain if it exceeds about 3 cm.
+- §6 is a step-by-step procedure for running the policy without the web UI.
+
+## Plans and reports
+
+**[`old_journal_plan/DASH01_plan_B_policy_process.md`](old_journal_plan/DASH01_plan_B_policy_process.md): plan B.**
+Handover document for an overnight agent: run the policy inference in its own process (the policy worker) to get around the GIL. It covers the synchronous protocol, the 6 ms deadline, refusing to arm when the worker fails to start, and the tests.
+
+**[`old_journal_plan/DASH01_plan_B_RAPPORT.md`](old_journal_plan/DASH01_plan_B_RAPPORT.md): plan B implementation report.**
+The commits on `policy-worker`: per-stage tick timing, `policy_worker.py`, daemon integration, tests and bench. It also gives the rollback switches.
+
+**[`DASH01_plan_C_can_imu.md`](DASH01_plan_C_can_imu.md): plan C.**
+Handover document, with measurements, for replacing python-can with a raw `AF_CAN` socket and running the IMU at 120 Hz to free CPU time in the 10 ms tick.
+
+**[`DASH01_plan_C_RAPPORT.md`](DASH01_plan_C_RAPPORT.md): plan C execution report.**
+The work was done in five commits:
+- `can_probe.py`, a passive probe;
+- `RawCanBus`;
+- `txqueuelen 100`;
+- the IMU at 120 Hz (later reverted);
+- draining the CAN queue with `poll(0)`, measured on the Pi at 5 µs against 55 µs for the exception path.
+
+The CAN share of the CPU drops from 33 to 17 %. On-robot tests sent no frame to any motor.
+
+**[`DASH01_plan_tests_bruit_moteurs.md`](DASH01_plan_tests_bruit_moteurs.md) and [`Logs/ANALYSE_bruit_moteurs.md`](Logs/ANALYSE_bruit_moteurs.md): high-pitched motor noise during the policy.**
+The analysis covers runs 3 and 4:
+- the noise is not a current limit;
+- the cam motors show a 4 to 6 A rms current ripple in MIT mode, against nearly zero in SET_POS;
+- the cam and the thigh fight each other through the foot.
+
+The test plan lists hypotheses (gains: kd stuck at 5 and kp jumping between ticks; the cam–thigh fight; the loop rate) and tests to separate them.
+
+**[`DASH-sim2real_plan_migration.md`](DASH-sim2real_plan_migration.md): migration plan.**
+How this repo, `dash-reports` and the archive were built from the old DASH-01 repo, plus the branch rules and the checklist before merging into `main`.
+
+## Run analyses
+
+| File | Summary |
 | --- | --- |
-| `old_journal_plan/DASH01_journal_2026-11-17.md` | premier déploiement, runs 1 à 4 |
-| `old_journal_plan/DASH01_plan_B_policy_process.md`, `DASH01_plan_B_RAPPORT.md` | plan B : inférence dans un process séparé (policy worker) |
-| `DASH01_plan_C_can_imu.md`, `DASH01_plan_C_RAPPORT.md` | plan C : CAN brut, IMU 200 Hz |
-| `DASH01_plan_tests_bruit_moteurs.md`, `Logs/ANALYSE_bruit_moteurs.md` | bruit des moteurs |
-| `DASH01_journal_2026-11-20.md` | runs 5 à 9 ; état de référence (100 Hz, chute vers l'avant) |
-| `DASH-sim2real_plan_migration.md` | plan de migration vers ce repo |
-| `Logs/<run>/ANALYSE.md` | analyse de chaque run |
-| `Logs/DASH01_runs6-9_2026-11-20/replay_policy_offline.py` | rejeu hors ligne d'un run (niveau 1 de la checklist) |
-| `Logs/plan_C/*.py` | scripts de banc du plan C |
+| [`Logs/DASH01_run3_2026-11-17/ANALYSE.md`](Logs/DASH01_run3_2026-11-17/ANALYSE.md) | run 3: the policy rights a −7° heel tilt, but the loop holds only 60 Hz and the rate guard stops it after 1.69 s |
+| [`Logs/DASH01_run4_2026-11-17/ANALYSE.md`](Logs/DASH01_run4_2026-11-17/ANALYSE.md) | run 4, with the web UI throttled: 76 Hz, stopped after 1.32 s |
+| [`Logs/DASH01_run5_2026-11-20/ANALYSE.md`](Logs/DASH01_run5_2026-11-20/ANALYSE.md) | run 5, first run after plan C (`cfd33c9`, worker active): 83 Hz; the run file logs the gains the policy requests at every tick |
+| [`Logs/DASH01_runs6-9_2026-11-20/ANALYSE.md`](Logs/DASH01_runs6-9_2026-11-20/ANALYSE.md) | runs 6 to 8 from the web UI (88.5–88.8 Hz), run 9 from the terminal (100.0 Hz, tips forward +0.1 → +14.1°, hard stop after 0.88 s); §4 is the offline replay analysis |
 
-Les chemins `Logs/…` sont ceux du dossier d'origine (`Dash-01/SimToReal/`), pour que les liens des journaux restent valides.
+## Scripts
 
-**Données brutes** (`.bbseg`, `.bbdump`, CSV, JSON et NPZ des runs 3 à 9 et du plan C) : elles ne sont pas dans ce repo, mais dans `dash-reports`, sous `sim2real-logs/`, avec la même arborescence que `Logs/` ici.
+| File | Purpose |
+| --- | --- |
+| [`Logs/DASH01_runs6-9_2026-11-20/replay_policy_offline.py`](Logs/DASH01_runs6-9_2026-11-20/replay_policy_offline.py) | offline replay of a run through the real controller (level 1 of the checklist). Its paths are hard-coded to the original Mac layout |
+| [`Logs/plan_C/`](Logs/plan_C/) `cores.py`, `bench_gov.py`, `vcan_check.py` | plan C bench scripts run on the Pi: per-core CPU load from `/proc/stat`; pure compute cost of `ctrl.step` and `SafetyGovernor.step` with the real bundle (no CAN); byte identity and tick cost of python-can vs `RawCanBus` on a virtual CAN interface only |
