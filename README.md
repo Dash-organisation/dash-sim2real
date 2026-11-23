@@ -112,7 +112,7 @@ Add an entry to [`docs/rl/EXPERIMENTS.md`](docs/rl/EXPERIMENTS.md).
 - **Léo-Paul** (GitHub `leorizkallah`): RL series from STOP to STAND-05, and the deployed policy.
 - **Tim**: V2 rebuild, robot stack and sim-to-real.
 
-The timeline is in [`HISTORY.md`](HISTORY.md). The full git history from before the migration is in `DASH-01-archive`.
+The timeline is in [`HISTORY.md`](HISTORY.md). The full git history from before the migration is in [`nathmo/running_robot`](https://github.com/nathmo/running_robot) (up to 2026-09-30) and [`leorizkallah/DASH-01`](https://github.com/leorizkallah/DASH-01) (October–November 2026, Léo-Paul's branches). Tim's `policy-worker` branch was not published; its final state is the first two commits of this repo (`cfd33c9`, then `b25d404`), and its commits are described in `docs/sim2real/`.
 
 ## License
 
