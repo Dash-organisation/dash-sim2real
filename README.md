@@ -113,3 +113,7 @@ Ajouter une fiche dans [`docs/rl/EXPERIMENTS.md`](docs/rl/EXPERIMENTS.md).
 - **Tim** : rebuild V2, stack robot et sim2real.
 
 La chronologie est dans [`HISTORY.md`](HISTORY.md). L'historique git complet d'avant la migration est dans `DASH-01-archive`.
+
+## Licence
+
+[Mozilla Public License 2.0](LICENSE), la même que l'ancien repo DASH-01.
