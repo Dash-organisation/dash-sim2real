@@ -1,0 +1,7 @@
+#!/bin/sh
+# Refresh the local graphify graph of the code in the background (AST only, no LLM, no API cost).
+# Does nothing when graphify is not installed.
+command -v graphify >/dev/null 2>&1 || exit 0
+root=$(git rev-parse --show-toplevel) || exit 0
+( cd "$root" && graphify update . >/dev/null 2>&1 & )
+exit 0

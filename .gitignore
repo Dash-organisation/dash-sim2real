@@ -10,7 +10,10 @@ venv/
 __MACOSX/
 .vscode/
 .idea/
-.claude/
+# Claude Code: the shared project settings are committed, personal ones are not
+.claude/*
+!.claude/settings.json
+CLAUDE.local.md
 # Environment and temporary files
 .env
 .env.local
@@ -28,6 +31,15 @@ wandb/
 events.out.tfevents.*
 # ...except the sim2real run analyses (on macOS, `logs/` also matches `Logs/`)
 !docs/sim2real/Logs/
+# ...and the small run summaries of the report workspace (report/data/<series>/results/)
+!report/data/**/results/
+# Heavy report outputs live in dash-reports (see tools/sync_reports.sh); files > 1 MB are also
+# refused by the pre-commit hook (tools/hooks/pre-commit)
+*.tar.gz
+*.tgz
+*.zip
+# Graphify knowledge graph: built locally by each developer (graphify update .), never committed
+graphify-out/
 # Robot runtime data
 controller/fixed_gait/webui/data/blackbox/
 *.bbseg
