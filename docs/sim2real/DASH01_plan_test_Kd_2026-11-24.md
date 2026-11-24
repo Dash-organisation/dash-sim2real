@@ -1,6 +1,11 @@
 # DASH-01 — Plan de test : Kd est-il le problème du sim-to-real ? (24/11)
 
-Version 2, 24/11. Branche `hw/Kd_validation`. (Version 1 : 23/11 au soir, pas figé de la politique.)
+Version 2, 24/11. Branche `hw/Kd_validation`.
+
+> **⚠ Résultat du 24/11 (`DASH01_journal_2026-11-24.md`) : le sifflement vient du mode force
+> control (MIT) des drives, pas du kd.** En MIT, au-delà d'un certain couple, la jambe entre dans
+> une oscillation à 2,5 kHz qui s'entretient : **seul LIMP l'arrête**. Pas de runs MIT sous charge
+> tant que ce n'est pas corrigé. (Version 1 : 23/11 au soir, pas figé de la politique.)
 
 > **Changement du 24/11 : la trame n'est plus un pas de la politique.** Au premier run (A, pas
 > figé), le robot s'est éteint d'un coup après 0,87 s (perte du Pi et du SSH : coupure
@@ -259,8 +264,8 @@ centre de masse.
 
 | run | bundle | calme / poussées | fichier `saved` | sifflement (oui / faible / non) | pic audio (Hz) | T max (°C) | remarques |
 |---|---|---|---|---|---|---|---|
-| REF | LIMP | — | — | | | | |
-| REF | SET_POS | — | — | | | | |
+| REF | LIMP | — | — | non | presque rien| | le robot est silencieux s'il n'est pas posé au sol|
+| REF | SET_POS | — | — | non | presque rien mais un peu plus que limp | | le robot est silencieux s'il n'est pas posé au sol|
 | 1 | E | calme | | | | | |
 | 2 | E | poussées | | | | | |
 | 3 | D | calme | | | | | |

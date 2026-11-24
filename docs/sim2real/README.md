@@ -19,6 +19,13 @@ First tests of the standing policy on the real robot. Introduces the scripted `d
 - **Decisions:** do not re-zero the IMU while standing. Measure the centre-of-mass gap, then retrain if it exceeds about 3 cm.
 - §6 is a step-by-step procedure for running the policy without the web UI.
 
+**[`DASH01_journal_2026-11-24.md`](DASH01_journal_2026-11-24.md): the Kd test. The whistle comes from the drives' force-control (MIT) mode.**
+- The first frozen run (A) cut the power to the whole robot after 0.87 s. The cause is not proven; the robot may have been charging.
+- The frozen-frame runs (kd 0.5 to 5, kp 100 and 200) all whistle the same way, while SET_POS under the same load is nearly silent. The policy, kp and kd are not the cause.
+- On the panel (MIT hold), it whistles even at kp = kd = 0.1, at a fixed 2.5 kHz, louder under load. Above some torque the whole leg goes into a **self-sustained oscillation that only LIMP stops**. **Safety rule: no MIT under load until this is fixed.**
+- The static stiffness measured in MIT is 1.7 to 1.9 times the commanded kp, a direct sim-to-real gap to confirm with a known mass.
+- It also explains, from Nathann's thesis, why the stack uses MIT (bandwidth 6 Hz against 1.9 Hz in servo mode, and a law that matches MuJoCo), and whether SET_POS could work (standing probably, running no). It ends with next steps and a message to CubeMars.
+
 ## Plans and reports
 
 **[`old_journal_plan/DASH01_plan_B_policy_process.md`](old_journal_plan/DASH01_plan_B_policy_process.md): plan B.**
