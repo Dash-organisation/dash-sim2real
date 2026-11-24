@@ -136,6 +136,8 @@ Deployed artifact: `controller/deploy/bundles/bal5_s0.npz` (v3, parity PASS, moc
 
 ## Workflow
 
+New to the cluster? Start with [`docs/scitas/README.md`](../docs/scitas/README.md).
+
 ```bash
 # train (Izar): three seeds, 4 x 4.5 h each
 BalanceRL/slurm/izar_balance.sh

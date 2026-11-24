@@ -50,6 +50,7 @@ Phase 1 of the migration: folders keep their names from the old repo, so the pat
 | `tools/` | repo tooling: git hooks, `install-hooks.sh`, `sync_reports.sh` |
 | `docs/sim2real/` | journals, plans B and C, motor noise, analyses of runs 3 to 9 (in French, with English summaries) |
 | `docs/rl/` | `EXPERIMENTS.md` (catalogue of the series) and `PROJECT_CONTEXT.md` |
+| `docs/scitas/` | how to use the EPFL SCITAS cluster (Izar) to train: SSH, venv, Slurm jobs |
 | `docs/experiments/` | experiment records (files < 1 MB; the rest is in `dash-reports`) |
 | `archive/` | frozen copies, nothing active |
 
@@ -122,7 +123,7 @@ python3 tools/policy_cli.py limp                                  # releases eve
 
 ## 7. Training a new policy
 
-1. Work on a `train/<topic>` branch. Training runs on SCITAS (Izar); see `BalanceRL/README.md` ("Workflow") and `BalanceRL/slurm/`.
+1. Work on a `train/<topic>` branch. Training runs on SCITAS (Izar): first-time setup, SSH keys, venv and job submission are in [`docs/scitas/README.md`](docs/scitas/README.md); see also `BalanceRL/README.md` ("Workflow") and `BalanceRL/slurm/`.
 2. Export with the parity check:
 
    ```bash
