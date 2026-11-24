@@ -10,7 +10,11 @@ du mode force control, puis le vérifier avec les mêmes tests que le 24/11.
 
 ## 0. Matériel et sécurité (5 min)
 
-- [ ] Batterie chargée, **chargeur débranché**.
+- [ ] Batterie chargée **à 50–51 V au maximum**, **chargeur débranché**. Les drives AK acceptent
+      **18 à 52 V** (« Allowable working voltage », AK Series Module Product Manual V3.0.0 et Driver
+      Manual V1.0.17, pour les cartes petite et grande taille). Un pack 13S plein (54,6 V) est donc
+      **au-dessus** de leur limite, et le freinage des moteurs fait encore monter la tension. Ne
+      jamais dépasser 52 V sur le bus (4,0 V par cellule).
 - [ ] Robot dans le harnais, harnais tendu, E-STOP à portée de main.
 - [ ] Téléphone avec l'appli de spectrogramme, posé à environ 20 cm de la came droite.
 - [ ] Un terminal sur le Pi (`cd ~/running_robot/robot`). Interface web ouverte **seulement** pour le
@@ -35,6 +39,8 @@ et l'id CAN que l'outil affiche, pour être sûr de quel drive il s'agit. Le jou
 - [ ] Exporte la configuration de chaque drive si l'outil le permet. Sinon, prends une photo de
       chaque écran. Range le tout dans `docs/sim2real/Logs/DASH01_cubemars_<date>/`.
 - [ ] Note **tout ce qui diffère** entre les AK60-39 (qui ne sifflent pas) et les AKE90-8.
+- [ ] Page « System Settings » de l'outil : relève le **seuil de surtension** configuré sur chaque
+      drive (et les autres limites : courant, puissance, température).
 - [ ] Les valeurs du 04/08 sont dans `controller/fixed_gait/webui/dynstore.py` (`DRIVE_GAINS`).
       Vérifie qu'elles n'ont pas bougé.
 
