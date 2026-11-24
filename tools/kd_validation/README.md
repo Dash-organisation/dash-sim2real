@@ -2,7 +2,14 @@
 
 Test plan (French): [`docs/sim2real/DASH01_plan_test_Kd_2026-11-24.md`](../../docs/sim2real/DASH01_plan_test_Kd_2026-11-24.md).
 
-The idea: take one step of `standing04_xshape_best` from a simulated run where it stands, freeze it
+**Current frame (2026-11-24, after the power cut on run A): `--frame home`, the default.** No policy
+step any more: every bundle sends the source bundle's *action 0* — target `nominal_ctrl` (the rest
+stance `default_motor_pos` plus the gravity deflection that carries it), kp `drive_kp` (200 legs /
+120 hip rolls), kd `drive_kd` — which is the handover frame the daemon already sends between SET_POS
+and the policy. Only the leg gains change: kd 5 / 2 / 1 / 0.5 at kp 200, and kd 5 / 1 at kp 100
+(`kdval_B` … `kdval_G`; there is no `A` in this frame, it would equal `B`).
+
+The original idea (`--frame step`): take one step of `standing04_xshape_best` from a simulated run where it stands, freeze it
 (the same MIT frame — target, kp, kd per joint — on every tick), and run it on the robot with only
 the leg kd changed (5 / 2 / 1 / 0.5, plus kd 5 with kp halved). The two hip rolls get the bundle's
 nominal frame (action 0: `nominal_ctrl`, kp 120, kd 4): both quiet stances of this policy have one

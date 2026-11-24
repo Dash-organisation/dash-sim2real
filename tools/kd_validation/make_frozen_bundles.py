@@ -13,10 +13,17 @@ dead-man, same 10 s cap and the same run log (target, kp, kd, pos, vel, tau, amp
 robot code changes. The estimator and hidden layers are zeroed too (unused once act_w = 0), which
 makes each file ~30 kB instead of 1 MB.
 
-    python tools/kd_validation/make_frozen_bundles.py            # step_standing04_xshape_best.json
+    python tools/kd_validation/make_frozen_bundles.py                 # --frame home (default)
+    python tools/kd_validation/make_frozen_bundles.py --frame step     # step_standing04_xshape_best.json
     python tools/kd_validation/make_frozen_bundles.py --step <json> --out controller/deploy/bundles
 
-The variants (VARIANTS below) keep the step's leg target and change only the gains of the four leg
+--frame home (default, 2026-11-24): no policy step at all. The frame is the bundle's ACTION 0 --
+target nominal_ctrl (the stance the robot rests at, default_motor_pos, plus the gravity deflection
+that carries it), kp drive_kp (200 legs / 120 hip rolls), kd drive_kd -- i.e. exactly the handover
+frame the daemon already sends between SET_POS and the policy. Only the leg kd and kp change
+(HOME_VARIANTS): a 2 x 2 grid kp {200, 100} x kd {5, 1} plus kd 2 and 0.5 at kp 200.
+
+--frame step: the original test. The variants (STEP_VARIANTS) keep the step's leg target and change only the gains of the four leg
 joints (cam_L, thigh_L, cam_R, thigh_R). The two hip rolls get the bundle's NOMINAL frame
 (--abduction nominal, the default: target nominal_ctrl, kp drive_kp 120, kd drive_kd 4, i.e. action
 0): in every quiet stance of standing04_xshape one hip roll is nearly limp (kp 20, kd 0.3 -- searched
@@ -43,8 +50,16 @@ LEG = [1, 2, 4, 5]          # cam_L, thigh_L, cam_R, thigh_R (model order)
 ABD = [0, 3]                # hip_roll_L, hip_roll_R
 PREFIX = "kdval"
 
-# name -> (leg kd or None = the step's, leg kp scale), in the order the test runs them
-VARIANTS = [
+# name -> (leg kd or None = the frame's, leg kp scale), in the order the test runs them
+HOME_VARIANTS = [               # --frame home: the frame is action 0 (kp 200, kd 5 on the legs)
+    ("B_kd5", 5.0, 1.0),        # the bundle's own frame: kd 5, the driver's and the policy's max
+    ("C_kd2", 2.0, 1.0),
+    ("D_kd1", 1.0, 1.0),
+    ("E_kd05", 0.5, 1.0),
+    ("F_kd5_kphalf", 5.0, 0.5),  # kp 100: does kp matter too? (half the support torque: the
+    ("G_kd1_kphalf", 1.0, 0.5),  #  robot sinks into the harness)
+]
+STEP_VARIANTS = [
     ("A_step", None, 1.0),      # the policy step's leg frame exactly as the policy sent it
     ("B_kd5", 5.0, 1.0),        # all four leg joints at kd 5 (the driver's and the policy's max)
     ("C_kd2", 2.0, 1.0),
@@ -108,13 +123,27 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--step", default=os.path.join(HERE, "step_standing04_xshape_best.json"))
     ap.add_argument("--out", default=os.path.join(ROOT, "controller", "deploy", "bundles"))
-    ap.add_argument("--abduction", choices=("nominal", "step"), default="nominal")
+    ap.add_argument("--frame", choices=("home", "step"), default="home",
+                    help="home: action 0 of the source bundle (default); step: the picked step")
+    ap.add_argument("--bundle", default="standing04_xshape_best.npz",
+                    help="source bundle for --frame home")
+    ap.add_argument("--abduction", choices=("nominal", "step"), default="nominal",
+                    help="--frame step only")
     a = ap.parse_args()
-    step = json.load(open(a.step))
-    src = Bundle.load(os.path.join(ROOT, "controller", "deploy", "bundles", step["bundle"]))
-    T = np.asarray(step["frame"]["target_rad"], float)
-    KP = np.asarray(step["frame"]["kp"], float)
-    KD = np.asarray(step["frame"]["kd"], float)
+    if a.frame == "home":
+        step = {"bundle": a.bundle, "run": None, "picked_t_s": None}
+        src = Bundle.load(os.path.join(ROOT, "controller", "deploy", "bundles", a.bundle))
+        T = np.asarray(src["nominal_ctrl"], float).copy()
+        KP = np.asarray(src["drive_kp"], float).copy()
+        KD = np.asarray(src["drive_kd"], float).copy()
+        variants, a.abduction = HOME_VARIANTS, "nominal"
+    else:
+        step = json.load(open(a.step))
+        src = Bundle.load(os.path.join(ROOT, "controller", "deploy", "bundles", step["bundle"]))
+        T = np.asarray(step["frame"]["target_rad"], float)
+        KP = np.asarray(step["frame"]["kp"], float)
+        KD = np.asarray(step["frame"]["kd"], float)
+        variants = STEP_VARIANTS
     if a.abduction == "nominal":
         T[ABD] = src["nominal_ctrl"][ABD]
         KP[ABD] = src["drive_kp"][ABD]
@@ -122,12 +151,14 @@ def main():
     # the step's own action must give back the step's frame (no rounding surprise)
     a_step = frame_to_action(src, T, KP, KD)
     rows = []
-    for name, kd_leg, kp_scale in VARIANTS:
+    for name, kd_leg, kp_scale in variants:
         kp, kd = KP.copy(), KD.copy()
         if kd_leg is not None:
             kd[LEG] = kd_leg
         kp[LEG] = kp[LEG] * kp_scale
         act = a_step if (kd_leg is None and kp_scale == 1.0) else frame_to_action(src, T, kp, kd)
+        if a.frame == "home":
+            assert np.allclose(act[:6], 0.0, atol=1e-6), "home target != nominal_ctrl"
         if a.abduction == "nominal":
             assert np.allclose(act[[0, 3, 6, 9, 12, 15]], 0.0, atol=1e-6), "abduction != action 0"
         meta = copy.deepcopy(src.meta)
@@ -136,7 +167,7 @@ def main():
             "what": "constant action: act_w = 0, act_b = action. NOT a balance controller -- no "
                     "feedback at all. Kd validation test, docs/sim2real/DASH01_plan_test_Kd_2026-11-24.md",
             "source_bundle": step["bundle"], "source_run": step.get("run"),
-            "picked_t_s": step["picked_t_s"], "variant": name,
+            "frame": a.frame, "picked_t_s": step["picked_t_s"], "variant": name,
             "leg_kd": kd_leg, "leg_kp_scale": kp_scale, "abduction": a.abduction,
             "target_rad": [round(float(v), 5) for v in T],
             "kp": [round(float(v), 3) for v in kp], "kd": [round(float(v), 4) for v in kd],

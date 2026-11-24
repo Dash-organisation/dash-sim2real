@@ -1,6 +1,16 @@
 # DASH-01 — Plan de test : Kd est-il le problème du sim-to-real ? (24/11)
 
-Version 1, préparée le 23/11 au soir. Branche `hw/Kd_validation`.
+Version 2, 24/11. Branche `hw/Kd_validation`. (Version 1 : 23/11 au soir, pas figé de la politique.)
+
+> **Changement du 24/11 : la trame n'est plus un pas de la politique.** Au premier run (A, pas
+> figé), le robot s'est éteint d'un coup après 0,87 s (perte du Pi et du SSH : coupure
+> d'alimentation probable, à diagnostiquer avec `blackbox_read.py --postmortem`). Après la
+> recalibration, on garde le plus simple : chaque bundle envoie **l'action 0** de
+> `standing04_xshape_best`, c'est-à-dire la trame de passage SET_POS → politique que le daemon
+> envoie déjà : cible `nominal_ctrl` (la stance de départ `default_motor_pos` plus la déflexion
+> de gravité qui porte le robot), kp 200 (jambes) / 120 (abductions), kd 5 / 4. Seuls le kd et le
+> kp des jambes changent (§3). Les sections 1 et 2 décrivent la version 1 et restent valables
+> pour la question posée. `make_frozen_bundles.py --frame step` refait les anciens bundles.
 Suite de `DASH01_plan_tests_bruit_moteurs.md` et de `Logs/ANALYSE_bruit_moteurs.md`.
 
 Outils : `tools/kd_validation/` (README en anglais). Bundles : `controller/deploy/bundles/kdval_*.npz`.
@@ -84,7 +94,26 @@ Seuls six fichiers de 15 kB sont à copier.
 
 Chiffres complets : `tools/kd_validation/step_standing04_xshape_best.json` (section `checks`).
 
-## 3. Le pas choisi et les variantes
+## 3. Les variantes (version 2 : trame « home »)
+
+Ordre du modèle : hip_roll_L, cam_L, thigh_L, hip_roll_R, cam_R, thigh_R.
+Cible pour **tous** les bundles : `nominal_ctrl` = −1,68 / +1,63 / +6,08 / +1,68 / −1,74 / −5,89°.
+Abductions : kp 120, kd 4 partout.
+
+| bundle | kp jambes | kd jambes | rôle |
+|---|---|---|---|
+| `kdval_E_kd05.npz` | 200 | **0,5** | le plus calme attendu : premier run (voir §6.1) |
+| `kdval_D_kd1.npz` | 200 | **1** | |
+| `kdval_C_kd2.npz` | 200 | **2** | |
+| `kdval_B_kd5.npz` | 200 | **5** | la trame du bundle telle quelle, le pire cas, la référence |
+| `kdval_G_kd1_kphalf.npz` | **100** | 1 | avec F : grille 2 × 2 kp {200, 100} × kd {5, 1} |
+| `kdval_F_kd5_kphalf.npz` | **100** | 5 | le kp joue-t-il aussi ? |
+
+À kp 100, la déflexion de gravité ne donne plus que la moitié du couple de soutien : le robot
+s'enfonce dans le harnais, qui doit le porter. Les six bundles sont vérifiés dans le contrôleur
+déployé et dans le daemon sur MockBus (`test_frozen_bundles.py`, 8 tests OK).
+
+### 3.1 Version 1 (abandonnée) : le pas choisi
 
 Pas : tick 1499 (t = 14,99 s) d'un run de 20 s. C'est le tick le plus proche de l'action médiane
 sur 10–20 s, donc un vrai pas d'un run qui tient debout, pas une moyenne. À ce tick : tangage
@@ -106,7 +135,7 @@ l'armement. Les abductions sont celles du bundle à action 0 (voir 2.2).
 
 | bundle | kd jambes (cames + cuisses) | kp jambes | rôle |
 |---|---|---|---|
-| `kdval_A_step.npz` | celui du pas (5 / 5 / 5 / 1,91) | pas | les jambes du pas exact, sans la dynamique de la politique |
+| ~~`kdval_A_step.npz`~~ (supprimé) | celui du pas (5 / 5 / 5 / 1,91) | pas | les jambes du pas exact, sans la dynamique de la politique |
 | `kdval_B_kd5.npz` | **5** partout | pas | le pire cas, la référence |
 | `kdval_C_kd2.npz` | **2** | pas | |
 | `kdval_D_kd1.npz` | **1** | pas | |
@@ -148,12 +177,15 @@ Entre la rampe de départ et l'arrêt, tous les ticks loggés portent exactement
 ### 6.0 Références (2 min)
 
 - 10 s d'audio robot **LIMP** (ventilateurs, alimentation).
-- 10 s d'audio en **SET_POS** debout immobile (`policy_cli.py pose kdval_A_step.npz`, puis poser le
+- 10 s d'audio en **SET_POS** debout immobile (`policy_cli.py pose kdval_B_kd5.npz`, puis poser le
   robot). C'est le niveau « sans sifflement ».
 
 ### 6.1 Série principale : debout, harnais tendu
 
-Pour **chaque** bundle, dans cet ordre : **A, B, C, D, E, B (répétition), F**.
+**Avant le premier run** : alimentation vérifiée (batterie, BMS, connecteurs, drives 104 et 106), zéro
+refait. Pour **chaque** bundle, dans cet ordre (kd croissant, pour que le premier run soit celui qui
+tire le moins de courant) : **E, D, C, B, G, F, E (répétition)**. Si le robot s'éteint encore, même
+à kd 0,5, c'est l'alimentation et pas le kd : arrêter la série.
 
 1. `python3 tools/policy_cli.py pose kdval_X.npz` puis attendre `arrived`.
 2. Poser le robot sur ses pieds, harnais tendu.
@@ -166,7 +198,7 @@ Pour **chaque** bundle, dans cet ordre : **A, B, C, D, E, B (répétition), F**.
    façon. Sans mouvement, la régression du kd n'a rien à mesurer.
 6. Remplir la fiche (§9) : sifflement oui / faible / non, fréquence du pic audio, remarques.
 
-14 runs, environ 30 min. Si le temps manque, on garde **A, B, D et E en calme**, c'est le cœur du
+14 runs, environ 30 min. Si le temps manque, on garde **E, D, B et F en calme**, c'est le cœur du
 test.
 
 ### 6.2 Optionnel : suspendu, pieds libres
@@ -193,7 +225,7 @@ alors dans `dash-reports`.
 
 ```bash
 python3 tools/kd_validation/analyze_runs.py docs/sim2real/Logs/DASH01_kd_2026-11-24/raw/policyrun_*.npz \
-    --labels A B C D E B2 F --out docs/sim2real/Logs/DASH01_kd_2026-11-24
+    --labels E D C B G F E2 --out docs/sim2real/Logs/DASH01_kd_2026-11-24
 ```
 Le script écrit `summary.md`, `summary.json` et des figures (courant et vitesse des quatre
 articulations de jambe ; ondulation en fonction du kd). Pour comparer, ajouter les anciens runs
@@ -214,8 +246,8 @@ trace repliée ; l'audio reste la mesure du sifflement lui-même.
 | Observation | Conclusion | Suite |
 |---|---|---|
 | B siffle et ondule ; C → D → E de moins en moins ; F ≈ B | **kd est la cause** (H1) | plafonner kd des jambes au déploiement (≤ 1–2, la simulation le tolère) ; réentraîner avec `kd_hi` réduit ; voir si le firmware filtre la vitesse |
-| B ≈ F, mais F ondule nettement moins que B | le **kp** joue aussi | plafonner aussi kp, ou pénaliser kp élevé |
-| A et B calmes, alors que la politique sifflait (runs 5–9) | ce n'est pas la trame, c'est la **dynamique** de la politique (sauts de kp par tick, consignes qui bougent) | pénaliser Δkp et Δcible à l'entraînement, filtrer les gains au déploiement |
+| F ondule nettement moins que B (et G moins que D) | le **kp** joue aussi | plafonner aussi kp, ou pénaliser kp élevé |
+| B calme, alors que la politique sifflait (runs 5–9) | ce n'est pas la trame, c'est la **dynamique** de la politique (sauts de kp par tick, consignes qui bougent) | pénaliser Δkp et Δcible à l'entraînement, filtrer les gains au déploiement |
 | bruit identique de B à E | pas les gains seuls : chaîne fermée ou lutte (H2) | test suspendu (6.2), puis les tests 3–4 de `DASH01_plan_tests_bruit_moteurs.md` |
 | `kd_eff` ≪ `kd_cmd`, ou `kp_eff` ≪ `kp_cmd` | le driver ne donne pas les gains demandés | à modéliser dans la simulation (gain effectif, filtre de vitesse) ; cela touche aussi la dérive avant |
 
@@ -229,17 +261,17 @@ centre de masse.
 |---|---|---|---|---|---|---|---|
 | REF | LIMP | — | — | | | | |
 | REF | SET_POS | — | — | | | | |
-| 1 | A | calme | | | | | |
-| 2 | A | poussées | | | | | |
-| 3 | B | calme | | | | | |
-| 4 | B | poussées | | | | | |
+| 1 | E | calme | | | | | |
+| 2 | E | poussées | | | | | |
+| 3 | D | calme | | | | | |
+| 4 | D | poussées | | | | | |
 | 5 | C | calme | | | | | |
 | 6 | C | poussées | | | | | |
-| 7 | D | calme | | | | | |
-| 8 | D | poussées | | | | | |
-| 9 | E | calme | | | | | |
-| 10 | E | poussées | | | | | |
-| 11 | B | calme (répétition) | | | | | |
-| 12 | B | poussées (répétition) | | | | | |
-| 13 | F | calme | | | | | |
-| 14 | F | poussées | | | | | |
+| 7 | B | calme | | | | | |
+| 8 | B | poussées | | | | | |
+| 9 | G | calme | | | | | |
+| 10 | G | poussées | | | | | |
+| 11 | F | calme | | | | | |
+| 12 | F | poussées | | | | | |
+| 13 | E | calme (répétition) | | | | | |
+| 14 | E | poussées (répétition) | | | | | |
