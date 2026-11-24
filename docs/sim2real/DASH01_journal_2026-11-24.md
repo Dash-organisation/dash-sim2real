@@ -230,6 +230,29 @@ Message à CubeMars (à compléter avec la version du firmware et le résultat d
 > differ (kp 0.207 / ki 2545 and kp 0.126 / ki 1705). Which loop runs at this frequency in force
 > control mode, which current-loop gains does force control use, and how can they be tuned?
 
+### 7.1 Décisions de fin de journée (opérateur)
+
+- **La correction passe par l'outil CubeMars.** Le message au support est envoyé, on attend la
+  réponse. Prochaine étape : installer correctement l'outil CubeMars et tester.
+- **Le problème est local aux AKE90-8.** Les abductions (AK60-39) ne montrent aucune perturbation
+  (ondulation de 0,1 A dans tous les runs).
+- **Pas de test de la masse connue** pour l'instant. On fait confiance au capteur de courant, donc
+  au facteur 1,8 sur le kp. Ça ne corrigera pas le sifflement (il est là à tous les kp), mais ça
+  reste un écart sim-to-real à garder en tête pour le déploiement de la politique.
+- **Pas de plan de repli SET_POS.**
+- La garde logicielle (LIMP automatique) ne règle pas le problème : elle n'est pas lancée.
+
+### 7.2 Session avec l'outil CubeMars : à relever
+
+1. Avant de modifier quoi que ce soit, **exporter ou photographier la configuration** de chacun des
+   six drives, et relever la **version du firmware** de chacun.
+2. Chercher les paramètres propres au **force control / MIT** (gains et bande passante de la boucle
+   de courant, filtre, fréquence de PWM), et comparer AKE90-8 et AK60-39.
+3. Ne modifier qu'**une carte à la fois**, puis refaire le test d'appui (robot suspendu, MIT hold
+   kp 50 / kd 1, LIMP prêt), et noter le seuil d'emballement avant et après.
+4. **En cas de mise à jour du firmware**, vérifier le format des trames force control de
+   `controller/deploy/mit.py` (ordre KP, KD, P, V, T ; plages) hors robot, avant tout mouvement.
+
 ## 8. Recettes utiles
 
 ```bash
