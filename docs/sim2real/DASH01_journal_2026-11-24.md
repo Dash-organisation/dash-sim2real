@@ -163,9 +163,12 @@ driver) à la limite de la stabilité**, qui devient instable à fort courant :
 Une explication classique, **non prouvée ici** : à fort courant, le fer du moteur sature,
 l'inductance baisse, et une boucle de courant réglée juste devient trop agressive.
 
-Les gains de courant des deux cames diffèrent (config enregistrée dans le postmortem : came D
-cur kp 0,207 / ki 2545, came G cur kp 0,126 / ki 1705). Comme les deux côtés partent à peu près au
-même effort, **cet écart n'est pas la cause principale**.
+Les gains de courant des deux jambes diffèrent (relevés sur les cartes avec l'outil CubeMars le
+2026-08-04, `controller/fixed_gait/webui/dynstore.py` `DRIVE_GAINS` : jambe D cur kp 0,207 / ki 2545,
+jambe G cur kp 0,126 / ki 1705). D'après `dynstore.py`, c'est la signature d'un autotuning par carte
+sur le R/L réel du bobinage, pas une erreur de réglage. Comme les deux côtés partent à peu près au
+même effort, **cet écart n'est pas la cause principale**. On ne sait pas si le force control utilise
+ces gains-là (ce sont ceux de la cascade du servo mode).
 
 Conséquences probables, à vérifier :
 - le bruit « atroce » des runs debout : les cames chargées à environ 20 N·m déclenchent
