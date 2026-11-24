@@ -26,6 +26,9 @@ First tests of the standing policy on the real robot. Introduces the scripted `d
 - The static stiffness measured in MIT is 1.7 to 1.9 times the commanded kp, a direct sim-to-real gap to confirm with a known mass.
 - It also explains, from Nathann's thesis, why the stack uses MIT (bandwidth 6 Hz against 1.9 Hz in servo mode, and a law that matches MuJoCo), and whether SET_POS could work (standing probably, running no). It ends with next steps and a message to CubeMars.
 
+**[`DASH01_tuto_retest_CubeMars.md`](DASH01_tuto_retest_CubeMars.md): step-by-step procedure for the next session.**
+Record the six drives' configuration and firmware with the CubeMars tool, then run a reference "press test" (suspended, MIT hold). Change one setting on one board at a time and retest after each change. Once the press test passes, validate standing (SET_POS, MIT hold, frozen runs D and B) and analyse the logs. Includes the safety rules and the sheets to fill in.
+
 ## Plans and reports
 
 **[`old_journal_plan/DASH01_plan_B_policy_process.md`](old_journal_plan/DASH01_plan_B_policy_process.md): plan B.**
