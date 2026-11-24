@@ -49,6 +49,7 @@ Phase 1 of the migration: folders keep their names from the old repo, so the pat
 | `report/` | Léo-Paul's report workspace: write-ups, HTML galleries, figures, small data (files < 1 MiB; videos and heavy data are in `dash-reports`) |
 | `tools/` | repo tooling: git hooks, `install-hooks.sh`, `sync_reports.sh` |
 | `docs/sim2real/` | journals, plans B and C, motor noise, analyses of runs 3 to 9 (in French, with English summaries) |
+| `docs/hardware/` | battery, power and charging: the drives accept 18–52 V, so charge the 13S pack to 50–51 V |
 | `docs/rl/` | `EXPERIMENTS.md` (catalogue of the series) and `PROJECT_CONTEXT.md` |
 | `docs/experiments/` | experiment records (files < 1 MB; the rest is in `dash-reports`) |
 | `archive/` | frozen copies, nothing active |
