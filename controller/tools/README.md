@@ -10,6 +10,16 @@ to init CAN bus on raspberry pi
 
 scp -r nemo@100.127.143.113:running_controller/fixed_gait* "C:\Users\Nathann\Downloads\running_robot\fixed_gait"                                      
 
+## mit_bench.py -- free-cam MIT/servo diagnostic (MOVES ONE MOTOR)
+
+    cd ~/running_robot/robot && ../.venv/bin/python tools/mit_bench.py --channel can1 --id 105 --phase A --dry-run
+
+One drive, unlinked from the leg, with the daemon stopped. Runs the phase A steps of
+docs/sim2real/DASH01_plan_banc_came_2026-11-25.md with speed/current/temperature/error/silence/runaway
+guards; every stop releases (1 s of MIT limp frames, then SET_CURRENT 0). Writes one .npz per
+session; analyse it on the Mac with tools/mit_bench/analyze.py (repo root). Procedure:
+tools/mit_bench/README.md.
+
 ## can_probe.py -- passive CAN / daemon probe (listens, never sends)
 
     cd ~/running_robot/robot && .venv/bin/python tools/can_probe.py --seconds 10 --bench --threads --json /tmp/probe.json

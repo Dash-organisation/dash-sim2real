@@ -31,6 +31,9 @@ Record the six drives' configuration and firmware with the CubeMars tool, then r
 
 ## Plans and reports
 
+**[`DASH01_plan_banc_came_2026-11-25.md`](DASH01_plan_banc_came_2026-11-25.md): free-cam bench for the MIT oscillation.**
+A bench on one drive (left cam, unlinked from the leg) to tell where the force-control oscillation comes from: the drive's MIT path (H1), its current loop (H2), the leg's mechanics (H3) or saturation at high current (H4). Phase A runs SET_CURRENT 0, SET_POS, MIT at a ladder of kp/kd, MIT as a damper and in slow rotation, and SET_RPM, with the phone recording. Tools: `controller/tools/mit_bench.py` (Pi) and `tools/mit_bench/analyze.py` (Mac); operator procedure in [`tools/mit_bench/README.md`](../../tools/mit_bench/README.md). Phase B (blocked output, MIT against SET_CURRENT) comes later.
+
 **[`old_journal_plan/DASH01_plan_B_policy_process.md`](old_journal_plan/DASH01_plan_B_policy_process.md): plan B.**
 Handover document for an overnight agent: run the policy inference in its own process (the policy worker) to get around the GIL. It covers the synchronous protocol, the 6 ms deadline, refusing to arm when the worker fails to start, and the tests.
 
